@@ -1,7 +1,13 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+# Written as part of https://www.scrapehero.com/how-to-scrape-amazon-product-reviews-using-python/
 from lxml import html
 from json import dump,loads
 from requests import get
+import json
+from re import sub
 from dateutil import parser as dateparser
+from time import sleep
 from bs4 import BeautifulSoup
 
 def scrape(amazon_url):
@@ -49,12 +55,26 @@ def scrape(amazon_url):
     #print(nameUSER)
 
 
-    #7 Date of the Review
+    #7 Date of the Review 
     dateOfReview = '//tr[@class,'date-first-available']//td[contains(@class, 'value')]//text()'
     dateReview  = parser.xpath(dateOfReview)[0]
     print(dateReview)
 
+    #8- get Amazon Product Code (ASIN)
+
+
+
+    #return (set OF all this informations)
+
+
+
+
+    
+
+
+
 
 
 url_product  = "https://www.amazon.fr/Arlo-Pro-VMS4330P-100EUS-rechargeable-bi-directionnel/dp/B0777TMW1Y/"
+url_product1 = "https://www.amazon.com/Imploding-Kittens-First-Expansion-Exploding/dp/B01HSIIFQ2/"
 scrape(url_product)
