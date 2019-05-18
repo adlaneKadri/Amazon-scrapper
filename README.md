@@ -31,12 +31,12 @@ sudo dpkg -i google-chrome-stable_current_amd64.deb
 ```
 
 ## How to use ?
-The script has a small command line interface here's the help (`python scrapeProduct.py --help`):
+The script has a small command line interface here's the help (`python scrap_amazon_category.py --help`):
 ```
-usage: scrapeProduct.py [-h] [--category-url CATEGORY_URL]
-                             [--output-products OUTPUT_PRODUCTS]
-                             [--output-reviews OUTPUT_REVIEWS] [--quite]
-                             [--debug]
+usage: scrap_amazon_category.py [-h] [--category-url CATEGORY_URL]
+                                [--output-products OUTPUT_PRODUCTS]
+                                [--output-reviews OUTPUT_REVIEWS] [--quite]
+                                [--debug]
 
 Parse Amazon category page, get all products and reviews and write them to csv
 files
@@ -57,7 +57,7 @@ optional arguments:
 Note that all the arguments are optional, The most useful argument is `quite` it enables you to test the script **quietly**
 
 ```bash
-python scrapeProduct.py --quite
+python scrap_amazon_category.py --quite
 ```
 Data will be exported in two files:
 
