@@ -3,6 +3,7 @@ from bs4 import BeautifulSoup
 import logging
 import sys
 import csv
+import re
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -12,7 +13,7 @@ import argparse
 
 
 AMAZON_BASE = 'https://www.amazon.fr'
-"""The base url of amazon, this is used when found relative paths during parsing"""
+"""The base url of amazon, this is used when found eelative paths during parsing"""
 
 HEADERS = {'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/62.0.3202.94 Safari/537.36'}
 REVIEW_FIELED_NAMES = ['asin', 'username', 'rate', 'date', 'short_title', 'full_title']
@@ -51,6 +52,8 @@ def parse_args():
                         help='Activate debug log messages')
     return parser.parse_args()
 
+
+
 def parse_review(soup):
     """Parse an amazon user review
 
@@ -73,7 +76,10 @@ def parse_review(soup):
     short_title = soup.find(class_='review-title')
     date = soup.find(class_='review-date')
     full_title = soup.find(class_='a-row a-spacing-small review-data')
-    return username.text, rate.text, date.text, short_title.text, full_title.text
+    rate = re.findall(r'(\d\,\d).*', rate.text)[0]
+    return username.text, rate, date.text, short_title.text.strip(), full_title.text.strip()
+
+
 
 def get_next_page_url(soup):
     "Returns the next page url or None if next button doesn't exits or disabled(the last page)"
@@ -87,6 +93,7 @@ def get_next_page_url(soup):
             if a:
                 n = AMAZON_BASE + a['href']
     return n
+
 
 def get_page_using_selenuim(url, timeout=15, wait_for='body'):
     """Get an HTML page using `selenuim`, when using `selenuim` we are using a
@@ -115,6 +122,8 @@ def get_page_using_selenuim(url, timeout=15, wait_for='body'):
     WebDriverWait(driver, timeout).until(element_present)
     return driver.page_source
 
+
+
 def get_see_all_reviews_url(soup):
     """Get the "see all reviews" button url
     :param soup the page to search inside the next button
@@ -128,6 +137,8 @@ def get_see_all_reviews_url(soup):
     amazon_added_suffix = '/ref=cm_cr_dp_d_show_all_btm'
     see_all_reviews_url = AMAZON_BASE + base + amazon_added_suffix + '?' + params
     return see_all_reviews_url
+
+
 
 def parse_product(url, quite=False):
     """Parse the product information and reviews
@@ -157,7 +168,9 @@ def parse_product(url, quite=False):
         price = None
     average_costumer_reviews = soup.find(id='averageCustomerReviews')
     average_rate = average_costumer_reviews.find(class_='a-icon-alt').text
+    average_rate = re.findall(r'(\d\.\d).*', average_rate)[0]
     total_reviews = average_costumer_reviews.find(id='acrCustomerReviewText').text
+    total_reviews = re.findall(r'(\d+).*', total_reviews)[0]
     asin = soup.find(text='ASIN')
     # some products don't have the technical spec table, is so we get ASIN from url
     if asin:
@@ -184,6 +197,7 @@ def parse_product(url, quite=False):
     product = Product(name, asin, price, average_rate, total_reviews)
     logging.info('Parsed successfully name={}, asin={}, rate={}, total_reviews={}'.format(product.name, product.asin, product.average_rate, product.total_reviews))
     return product, reviews
+
 
 def parse_amazon_category(url, quite=False):
     """Parse an Amazon category's products and reviews
@@ -227,6 +241,8 @@ def parse_amazon_category(url, quite=False):
 
     return products, reviews
 
+
+
 def export_products(products, products_file):
     """Export a list of products to a csv file
     The fields written are :const:`~PRODUCT_FIELED_NAMES`
@@ -242,6 +258,7 @@ def export_products(products, products_file):
         writer.writerows([p._asdict() for p in products])
     logging.info('Successfully exported {} products to {}'.format(len(products), products_file))
 
+
 def export_reviews(reviews, reviews_file):
     """Export a list of reviews to a csv file
     The fields written are :const:`~REVIEW_FIELED_NAMES`
@@ -256,6 +273,7 @@ def export_reviews(reviews, reviews_file):
         writer.writeheader()
         writer.writerows([r._asdict() for r in reviews])
     logging.info('Successfully exported {} reviews to {}'.format(len(reviews), reviews_file))
+
 
 if __name__ == '__main__':
     args = parse_args()
