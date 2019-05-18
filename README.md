@@ -1,44 +1,65 @@
-# web Scraping
+## Amazon Scrapper
+Amazon Scrapper: A script to scrap products and reviews data from amazon.fr and export it to csv files 
 
 ## Requirements
 
-In the following software and hardware list, you can run the code file in this repository.
-
-| Software  | OS  |
-| ------------------------------------ | ----------------------------------- |
-| Python 2.x/3.x, bs4, selenium | Ubuntu 16.04 or greater |
-
-* Use `pip3` to install this packages:
-
-E.g.
+| Software  |
+| ----------------- | 
+|    bs4,  selenuim | 
 
 ```
-pip3 install bs4
-```
-you’ll need to download `ChromeDriver` and add it to the bin path 
-
-after downloading `chromeDriver`, enter in the download folder using `cd  path_of_the_folder`, and after execute the following command :  
-```
-sudo cp chromedriver /usr/bin
+virtualenv --python=python3 env
+source env/bin/activate
+pip install -r requirements.txt
 ```
 
-## scraping test 
+For selenuim to execute properly, you should have a web browser and it's driver available in the `PATH` environment variable.
 
-To test the script you run **scrapeProduct.py**.
-
-E.g.
+Here's the instruction for installing Google Chrome driver on Ubuntu
 
 ```
-python3 scrapeProduct.py
+wget https://chromedriver.storage.googleapis.com/74.0.3729.6/chromedriver_linux64.zip
+unzip chromedriver_linux46.zip
+sudo cp chromedriver /usr/local/bin/
 ```
 
-You will get as an output 2 files (reviews.csv: contains information about reviews of a product, products.csv: contain information about products)
+If you don't have Google Chrome run the following:
 
-#### PS 
-
-this execution took me a long time, so I propose to launch the script by adding an attribute --quite just to retrieve the information of a single product of each page (it's just to see the final result)
-
-run the script as the following : 
+```bash
+wget https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb
+sudo dpkg -i google-chrome-stable_current_amd64.deb
 ```
-python3 scrapeProduct.py --quite
+
+## How to use ?
+The script has a small command line interface here's the help (`python scrapeProduct.py --help`):
 ```
+usage: scrapeProduct.py [-h] [--category-url CATEGORY_URL]
+                             [--output-products OUTPUT_PRODUCTS]
+                             [--output-reviews OUTPUT_REVIEWS] [--quite]
+                             [--debug]
+
+Parse Amazon category page, get all products and reviews and write them to csv
+files
+
+optional arguments:
+  -h, --help            show this help message and exit
+  --category-url CATEGORY_URL
+                        The home page of the category to be scrapted
+  --output-products OUTPUT_PRODUCTS
+                        Where to export the products. Default to products.csv
+  --output-reviews OUTPUT_REVIEWS
+                        Where to export the reviews. Default to reviews.csv
+  --quite               Scrap only one product and one review for each parsed
+                        web-page. Defaults to false
+  --debug               Activate debug log messages. Defaults to false
+```
+
+Note that all the arguments are optional, The most useful argument is `quite` it enables you to test the script **quietly**
+
+```bash
+python scrapeProduct.py --quite
+```
+Data will be exported in two files:
+
+* `products.csv`: contains information about products: name, asin, average_rate and total number of reviews
+* `reviews.csv`: contains information about user reviews for a given product: asin, username, rate, date, short title, full title
